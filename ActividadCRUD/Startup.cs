@@ -16,6 +16,7 @@ using Microsoft.Extensions.Options;
 using ActividadCRUD.Repository;
 using Microsoft.EntityFrameworkCore;
 using ActividadCRUD.Repository.Repositorio;
+using ActividadCRUD.Service;
 
 namespace ActividadCRUD
 {
@@ -32,13 +33,14 @@ namespace ActividadCRUD
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddSingleton(s => s.GetRequiredService<IOptions<SmartSettings>>().Value);
+            //services.AddSingleton(s => s.GetRequiredService<IOptions<SmartSettings>>().Value);
 
-            services.AddEntityFrameworkNpgsql();
-            var sqlConnectionString = Configuration["ConnActividadesDB"];
+            //services.AddEntityFrameworkNpgsql();
+            var sqlConnectionString = Configuration .GetConnectionString("ConnActividadesDB");
 
             services.AddDbContext<ActividadesDBContext>(options => options.UseNpgsql(sqlConnectionString));
 
+            services.AddScoped<IActivityService, ActivityService>();
             services.AddScoped<IRepositorioActivity, RepositorioActivity>();
 
             services.AddControllers();
