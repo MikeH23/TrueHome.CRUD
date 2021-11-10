@@ -7,10 +7,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using SmartFormat.Core.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using ActividadCRUD.Repository;
+using Microsoft.EntityFrameworkCore;
+using ActividadCRUD.Repository.Repositorio;
 
 namespace ActividadCRUD
 {
@@ -26,6 +31,15 @@ namespace ActividadCRUD
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            services.AddSingleton(s => s.GetRequiredService<IOptions<SmartSettings>>().Value);
+
+            services.AddEntityFrameworkNpgsql();
+            var sqlConnectionString = Configuration["ConnActividadesDB"];
+
+            services.AddDbContext<ActividadesDBContext>(options => options.UseNpgsql(sqlConnectionString));
+
+            services.AddScoped<IRepositorioActivity, RepositorioActivity>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
