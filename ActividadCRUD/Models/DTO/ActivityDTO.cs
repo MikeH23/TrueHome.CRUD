@@ -13,7 +13,8 @@ namespace ActividadCRUD.Models.DTO
         public string title { get; set; }
         public DateTime created_at { get; set; }
         public DateTime updated_at { get; set; }
-        public string status { get; set; }
+        public string status { get; set; } 
+        public string condition { get; set; }
 
         public ActivityDTO()
         {

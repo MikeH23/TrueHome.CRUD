@@ -1,5 +1,7 @@
 ﻿using ActividadCRUD.Models;
+using ActividadCRUD.Models.DTO;
 using ActividadCRUD.Models.Entity;
+using ActividadCRUD.Models.Request;
 using ActividadCRUD.Repository.Repositorio;
 using ActividadCRUD.Service;
 using Microsoft.AspNetCore.Http;
@@ -48,7 +50,7 @@ namespace ActividadCRUD.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult agregarActividad(Activity activity)
+        public IActionResult agregarActividad([FromBody]AddActivityRequest activity)
         {
             try
             {
@@ -99,16 +101,16 @@ namespace ActividadCRUD.Controllers
             }
         }
         //-------------------------------------------------------------------------------------------
-        [HttpPost("actualizarActividad")]
+        [HttpPut("actualizarActividad")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult actualizarActividad(Activity activity)
+        public IActionResult actualizarActividad([FromBody] ModifActivityRequest activity)
         {
             try
             {
                 int id = activity.id;
-                DateTime schedule = activity.schedule;
+                DateTime schedule = (DateTime)activity.schedule;
                 List<Activity> lstActivity = new List<Activity>();
                 Activity objActivity = new Activity();
 
@@ -117,37 +119,36 @@ namespace ActividadCRUD.Controllers
                     lstActivity = _repositorioActivity.GetActivities().Where(x => x.id == id).ToList();
                     objActivity = lstActivity.Where(x => x.id == id).FirstOrDefault();
 
-                    if(objActivity != null && objActivity.status != "Cancelada")
+                    if (objActivity != null && objActivity.status != "Cancelada")
                     {
                         var rangoActividad = lstActivity.Where(x => x.property_id == objActivity.property_id && schedule == x.schedule && schedule < x.schedule.AddHours(1)).ToList();
 
-                        if (rangoActividad.Count == 0 )
+                        if (rangoActividad.Count == 0)
                         {
-                            if (schedule != objActivity.schedule && objActivity.property_id == activity.property_id && objActivity.title == activity.title && objActivity.created_at == activity.created_at && 
-                                objActivity.updated_at == activity.updated_at && objActivity.status == activity.status)
+                            if (schedule == null)
+                            {
+                                var msj = "Ingresa el valor de el campo 'Schedule', favor de verificar...";
+                                return BadRequest(msj);
+                            }
+                            else
                             {
                                 objActivity.schedule = schedule;
                                 _repositorioActivity.actualizarActividad(objActivity);
                                 return Ok("Actividad actualizada de manera correcta...");
                             }
-                            else
-                            {
-                                var msj = "Unicamente se puede actualizar el campo 'Schedule', favor de verficiar...";
-                                return BadRequest(msj);
-                            }                            
                         }
                         else
                         {
                             var msj = "No se puede actualizar la actividad por que el horario seleccionado no esta disponible, favor de verficiar...";
                             return BadRequest(msj);
-                        }                           
+                        }
                     }
                     else
                     {
                         var msj = "La actividad que deseas actualizar se encuentra cancelada, favor de verificar...";
                         return BadRequest(msj);
                     }
-                } 
+                }
 
                 return BadRequest();
             }
@@ -155,7 +156,84 @@ namespace ActividadCRUD.Controllers
             {
                 throw e;
             }
-
         }
+        //-------------------------------------------------------------------------------------------
+        [HttpPut("cancelarActividad")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult cancelarActividad([FromQuery] int id)
+        {
+            List<Activity> lstActivity = new List<Activity>();
+            Activity objActivity = new Activity();
+
+            if (ModelState.IsValid)
+            {
+                lstActivity = _repositorioActivity.GetActivities().Where(x => x.id == id).ToList();
+                objActivity = lstActivity.Where(x => x.id == id).FirstOrDefault();
+
+                if(objActivity != null) 
+                {
+                    if(objActivity.status != "Cancelada")
+                    {
+                        objActivity.status = "Cancelada";
+                        _repositorioActivity.cancelarActividad(objActivity);
+                        return Ok("Actividad cancelada de manera correcta...");
+                    } 
+                    else
+                    {
+                        var msj = "La actividad ya se encuentra cancelada, favor de verificar...";
+                        return BadRequest(msj);
+                    }                    
+                }
+                else
+                {
+                    var msj = "La actividad que deseas cancelar no se encuentra en catálogo, favor de verificar...";
+                    return BadRequest(msj);
+                }
+            }
+
+            return BadRequest();
+        }
+        //-------------------------------------------------------------------------------------------
+        [HttpGet("obtenerFiltroActividades")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IEnumerable<ActivityDTO> obtenerFiltroActividades()
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    DateTime dtFecha = DateTime.Now;
+                    var lstActividad = _repositorioActivity.obtenerFiltroActividades();
+                    
+                    if(lstActividad.Count != 0)
+                    {
+                        foreach(ActivityDTO item in lstActividad)
+                        {
+                            if (item.status == "Activo" && item.schedule >= dtFecha)
+                                item.condition = "Pendiente a realizar";
+                            else if (item.status == "Activo" && item.schedule < dtFecha)
+                                item.condition = "Atrasada";
+                            else if (item.status == "Done")
+                                item.condition = "Finalizada"; 
+                        }
+
+                        return lstActividad;
+                    }
+                   
+                    return lstActividad;
+                }
+
+                return null;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+        //-------------------------------------------------------------------------------------------
     }
 }

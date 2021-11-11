@@ -1,4 +1,6 @@
-﻿using ActividadCRUD.Models.Entity;
+﻿using ActividadCRUD.Models.DTO;
+using ActividadCRUD.Models.Entity;
+using ActividadCRUD.Models.Request;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +10,10 @@ namespace ActividadCRUD.Service
 {
     public interface IActivityService
     {
-        void agregarActividad(Activity activity);
+        void agregarActividad(AddActivityRequest activity);
         void actualizarActividad(Activity activity);
-        void cancelarActividad(int idActividad);
+        void cancelarActividad(Activity activity);
         List<Activity> GetActivities();
+        List<ActivityDTO> obtenerFiltroActividades();
     }
 }

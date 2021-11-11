@@ -1,4 +1,6 @@
-﻿using ActividadCRUD.Models.Entity;
+﻿using ActividadCRUD.Models.DTO;
+using ActividadCRUD.Models.Entity;
+using ActividadCRUD.Models.Request;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -31,7 +33,7 @@ namespace ActividadCRUD.Repository.Repositorio
             }
         }
 
-        public void agregarActividad(Activity activity)
+        public void agregarActividad(AddActivityRequest activity)
         {
             try
             {
@@ -70,9 +72,45 @@ namespace ActividadCRUD.Repository.Repositorio
             }
         }      
 
-        public void cancelarActividad(int idActividad)
+        public void cancelarActividad(Activity activity)
         {
-            throw new NotImplementedException();
+            try
+            {
+                _dbSet.Update(activity);
+                _contexto.SaveChanges();
+            }
+            catch (NotImplementedException e)
+            {
+                throw e;
+            }
+        }
+
+        public List<ActivityDTO> obtenerFiltroActividades()
+        {
+            try
+            {
+                DateTime dtFecha = DateTime.Now;
+                ActivityDTO activityDTO = new ActivityDTO();
+                List<ActivityDTO> lstActivityDTO = new List<ActivityDTO>();
+                List<Activity> lstActividad = new List<Activity>();
+                lstActividad = _dbSet.Where(x => dtFecha.AddDays(-3) <= x.schedule && x.schedule <= dtFecha.AddDays(2)).OrderBy(x => x.id).ToList();
+
+                foreach (Activity item in lstActividad)
+                {
+                    activityDTO.id = item.id;
+                    activityDTO.schedule = item.schedule;
+                    activityDTO.title = item.title;
+                    activityDTO.created_at = item.created_at;
+                    activityDTO.status = item.status;
+                    lstActivityDTO.Add(activityDTO);
+                }
+
+                return lstActivityDTO;
+            }
+            catch (NotImplementedException e)
+            {
+                throw e;
+            }
         }
     }
 }

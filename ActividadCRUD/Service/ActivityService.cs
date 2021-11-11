@@ -1,4 +1,6 @@
-﻿using ActividadCRUD.Models.Entity;
+﻿using ActividadCRUD.Models.DTO;
+using ActividadCRUD.Models.Entity;
+using ActividadCRUD.Models.Request;
 using ActividadCRUD.Repository.Repositorio;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -18,7 +20,7 @@ namespace ActividadCRUD.Service
             this._repositorioActivity = repositorioActivity;
         }
         //-------------------------------------------------------
-        public void agregarActividad(Activity activity)
+        public void agregarActividad(AddActivityRequest activity)
         {
             try
             {
@@ -42,11 +44,11 @@ namespace ActividadCRUD.Service
             }
         }
 
-        public void cancelarActividad(int idActividad)
+        public void cancelarActividad(Activity activity)
         {
             try
             {
-                _repositorioActivity.cancelarActividad(idActividad);
+                _repositorioActivity.cancelarActividad(activity);
             }
             catch (NotImplementedException e)
             {
@@ -59,6 +61,18 @@ namespace ActividadCRUD.Service
             try
             {
                 return _repositorioActivity.GetActivities();
+            }
+            catch (NotImplementedException e)
+            {
+                throw e;
+            }
+        }
+
+        public List<ActivityDTO> obtenerFiltroActividades()
+        {
+            try
+            {
+                return _repositorioActivity.obtenerFiltroActividades();
             }
             catch (NotImplementedException e)
             {
