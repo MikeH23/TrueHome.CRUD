@@ -42,6 +42,7 @@ namespace ActividadCRUD
 
             services.AddScoped<IActivityService, ActivityService>();
             services.AddScoped<IRepositorioActivity, RepositorioActivity>();
+            services.AddScoped<IRepositorioProperty, RepositorioProperty>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

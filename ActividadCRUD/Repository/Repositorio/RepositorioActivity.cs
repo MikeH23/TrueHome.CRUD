@@ -23,8 +23,34 @@ namespace ActividadCRUD.Repository.Repositorio
         {
             try
             {
-                return _dbSet.OrderBy(x => x.id).Include(x => x.property).ToList();
-            } catch(NotImplementedException e)
+                return _dbSet.OrderBy(x => x.id).ToList(); //.Include(x => x.property).ToList();
+            } 
+            catch(NotImplementedException e)
+            {
+                throw e;
+            }
+        }
+
+        public void agregarActividad(Activity activity)
+        {
+            try
+            {
+                var property = _contexto.Property.Where(x => x.id == activity.property_id).FirstOrDefault();
+
+                Activity objActivity = new Activity();
+
+                objActivity.property_id = activity.property_id;
+                objActivity.schedule = activity.schedule;
+                objActivity.title = activity.title;
+                objActivity.created_at = DateTime.Now;
+                objActivity.updated_at = DateTime.Now;
+                objActivity.status = activity.status;
+
+                _dbSet.Add(objActivity);
+                _contexto.SaveChanges();
+
+            } 
+            catch( NotImplementedException e)
             {
                 throw e;
             }
@@ -33,13 +59,16 @@ namespace ActividadCRUD.Repository.Repositorio
 
         public void actualizarActividad(Activity activity)
         {
-            throw new NotImplementedException();
-        }
-
-        public void agregarActividad(Activity activity)
-        {
-            throw new NotImplementedException();
-        }
+            try
+            {        
+                _dbSet.Update(activity);
+                _contexto.SaveChanges();
+            } 
+            catch(NotImplementedException e)
+            {
+                throw e;
+            }
+        }      
 
         public void cancelarActividad(int idActividad)
         {

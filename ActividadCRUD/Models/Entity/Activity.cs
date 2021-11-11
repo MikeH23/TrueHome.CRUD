@@ -9,6 +9,7 @@ namespace ActividadCRUD.Models.Entity
     public class Activity
     {
         public int id { get; set; }
+        public int property_id { get; set; }
 
         [ForeignKey("property_id")]
         public virtual Property property { get; set; }

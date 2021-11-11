@@ -1,5 +1,6 @@
 ﻿using ActividadCRUD.Models.Entity;
 using ActividadCRUD.Repository.Repositorio;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,7 +35,8 @@ namespace ActividadCRUD.Service
             try
             {
                 _repositorioActivity.actualizarActividad(activity);
-            } catch(NotImplementedException e)
+            } 
+            catch(NotImplementedException e)
             {
                 throw e;
             }
